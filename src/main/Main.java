@@ -32,7 +32,6 @@ public class Main {
         Servicios servi = new Servicios();
         boolean opcion = true;
         int busqueda = 0;
-        String genCom = "";
 
         while (opcion) {
             int tipoBusq = 0;
@@ -70,101 +69,84 @@ public class Main {
                             in.nextLine();
                             salida = true;
                         }
-                    } while (salida);
 
-                    if (servi.buscarPorCodigo(tipoBusq) == null) {
-                        //JOptionPane.showMessageDialog(null, "No se encontro el Producto.");
-                        System.out.println("No se encontro el Producto");
-                    } else {
-                        System.out.println(servi.buscarPorCodigo(tipoBusq));
-
-                        System.out.println("Quiere Realizar una compra?\n"
-                                + "Y/N");
-                        genCom = in.next();
-
-                        if (genCom.equalsIgnoreCase("Y")) {
-                            generarVenta();
+                        if (servi.buscarPorCodigo(tipoBusq) == null) {
+                            mensajeNoEncontrado(busqueda);
+                            salida = true;
                         } else {
-                            System.out.println("Regresa al Menu de Busqueda de productos");
-                        }
-                    }
+                            System.out.println(servi.buscarPorCodigo(tipoBusq));
 
+                            elegirSiCompraONo();
+
+                        }
+                    } while (salida);
                     break;
                 case 2:
-                    System.out.println("Ingrese el nombre del producto.");
-                    String nomP = in.next();
-                    pr = servi.buscarPorNombre(nomP);
+                    do {
+                        System.out.println("Ingrese el nombre del producto.");
+                        String nomP = in.next();
+                        pr = servi.buscarPorNombre(nomP);
 
-                    pr.forEach((productos) -> {
-                        System.out.println(productos);
-                    });
+                        pr.forEach((productos) -> {
+                            System.out.println(productos);
+                        });
 
-                    if (pr.isEmpty()) {
-                        //JOptionPane.showMessageDialog(null, "No se encontro el Producto.");
-                        System.out.println("No se encontro ningun Producto con ese nombre");
-                    } else {
-                        System.out.println("Quiere Realizar una compra?\n"
-                                + "Y/N");
-                        genCom = in.next();
-
-                        if (genCom.equalsIgnoreCase("Y")) {
-                            generarVenta();
+                        if (pr.isEmpty()) {
+                            mensajeNoEncontrado(busqueda);
+                            salida = true;
                         } else {
-                            System.out.println("Regresa al Menu de Busqueda de productos");
+                            elegirSiCompraONo();
+                            salida = false;
                         }
-                    }
+                    } while (salida);
+
                     break;
                 case 3:
-                    System.out.println("Ingrese el PRECIO del producto.");
-                    tipoBusq = in.nextInt();
+                    salida = false;
+                    do {
+                        try {
+                            System.out.println("Ingrese el Precio maximo del Producto.");
+                            tipoBusq = in.nextInt();
+                            salida = false;
+                        } catch (InputMismatchException e) {
+                            System.out.println("Debe ingresar Precio Numerico"
+                                    + "\n--------------------");
+                            in.nextLine();
+                            salida = true;
+                        }
+                    } while (salida);
+
                     pr = servi.buscarPorPrecio(tipoBusq);
                     for (Productos prod : pr) {
                         System.out.println(prod);
                     }
 
                     if (pr.isEmpty()) {
-                        //JOptionPane.showMessageDialog(null, "No se encontro el Producto.");
-                        System.out.println("No se encontro ningun Producto con ese Precio");
+                        mensajeNoEncontrado(busqueda);
                     } else {
-                        boolean rCom = true;
-                        while (rCom) {
-                            System.out.println("Quiere Realizar una compra?\n"
-                                    + "Y/N");
-                            genCom = in.next();
-                        }
+                        elegirSiCompraONo();
 
-                        if (genCom.equalsIgnoreCase("Y")) {
-                            generarVenta();
-                        } else {
-                            System.out.println("Regresa al Menu de Busqueda de productos");
-                        }
                     }
                     break;
                 case 4:
+                    salida = true;
+                    
+                    do {
+                        System.out.println("Escriba la CATEGORIA del producto.");
+                        String cat = in.next();
+                        pr = servi.buscarPorCategoria(cat);
 
-                    System.out.println("Ingrese la CATEGORIA del producto.");
-                    String cat = in.next();
-                    pr = servi.buscarPorCategoria(cat);
-
-                    for (Productos prod : pr) {
-                        System.out.println(prod);
-                    }
-
-                    if (pr.isEmpty()) {
-                        //JOptionPane.showMessageDialog(null, "No se encontro el Producto.");
-                        System.out.println("No se encontro Productos con esa categoria");
-                    } else {
-                        System.out.println("Quiere Realizar una compra?\n"
-                                + "Y/N");
-                        genCom = in.next();
-
-                        if (genCom.equalsIgnoreCase("Y")) {
-                            generarVenta();
+                        if (pr.isEmpty()) {
+                            mensajeNoEncontrado(tipoBusq);
                         } else {
-                            System.out.println("Regresa al Menu de Busqueda de productos");
+                            for (Productos prod : pr) {
+                                System.out.println(prod);
+                            }
+                            elegirSiCompraONo();
+                            salida = false;
                         }
-                    }
-
+                    } while (salida);
+                    
                     break;
                 case 5:
                     calcularComision();
@@ -197,14 +179,17 @@ public class Main {
                 cantVentas = in.nextInt();
                 salida = false;
             } catch (InputMismatchException e) {
-                System.out.println("Debe ingresar NUMEROS estero\n" + e);
+                System.out.println("Todos los valores deben ser NUMERICOS\n");
                 in.next();
                 salida = true;
             }
+            if (servi.validarVenta(codV,codP,cantVentas)) {
+                servi.generarVenta(codP, codV, cantVentas);
+            }else{
+                servi.erroresGenerarProducto(codV,codP,cantVentas);
+                salida= true;
+            }
         } while (salida);
-
-        servi.generarVenta(codP, codV, cantVentas);
-
     }
 
     private static void calcularComision() {
@@ -218,7 +203,7 @@ public class Main {
                 numV = in.nextInt();
                 salida = false;
             } catch (InputMismatchException e) {
-                System.out.println("Debe ingresar un CODIGO NUMERICO entero\n" + e);
+                System.out.println("Debe ingresar un CODIGO NUMERICO entero\n");
                 in.next();
                 salida = true;
             }
@@ -226,5 +211,42 @@ public class Main {
         } while (salida);
 
         System.out.println("Su comision es: " + servi.calcularComision(numV) + "\n");
+    }
+
+    private static void elegirSiCompraONo() {
+        boolean salida = true;
+        String genCom = "";
+        do {
+            System.out.println("Quiere Realizar una compra?\n"
+                    + "Y/N");
+            genCom = in.next();
+
+            if (genCom.equalsIgnoreCase("Y")) {
+                generarVenta();
+                salida = false;
+            } else if (genCom.equalsIgnoreCase("N")) {
+                System.out.println("Regresa al Menú de Busqueda de productos");
+                salida = false;
+            }
+        } while (salida);
+    }
+
+    private static void mensajeNoEncontrado(int tipoBusq) {
+        String mensaje = "";
+
+        if (tipoBusq == 1) {
+            mensaje = "No se encontro el Producto";
+        }
+        if (tipoBusq == 2) {
+            mensaje = "No se encontro ningun Producto con ese nombre";
+        }
+        if (tipoBusq == 3) {
+            mensaje = "No se encontro ningun Producto con ese Precio";
+        }
+        if (tipoBusq == 4) {
+            mensaje = "No se encontro Productos con esa categoria";
+        }
+        //JOptionPane.showMessageDialog(null, mensaje);
+        System.out.println(mensaje);
     }
 }

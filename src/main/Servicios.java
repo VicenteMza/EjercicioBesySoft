@@ -7,11 +7,12 @@ import javax.swing.JOptionPane;
 
 public class Servicios {
 
-    private List<Productos> product = new ArrayList<>();
-    private List<Vendedor> vendedor = new ArrayList<>();
-    private List<Ventas> ventas = new ArrayList<>();
+    private static List<Productos> product = new ArrayList<>();
+    private static List<Vendedor> vendedor = new ArrayList<>();
+    private static List<Ventas> ventas = new ArrayList<>();
 
     public Servicios() {
+        if (ventas.isEmpty()) {
         product.add(new Productos(1, "Lavarropa", 150000, "Eletrodomestico"));
         product.add(new Productos(2, "Cocina", 100000, "Eletrodomestico"));
         product.add(new Productos(3, "Cerveza", 500, "Bebida"));
@@ -30,9 +31,10 @@ public class Servicios {
         ventas.add(new Ventas(4, 1, 1, LocalDate.now()));
         ventas.add(new Ventas(6, 2, 1, LocalDate.now()));
         ventas.add(new Ventas(1, 2, 2, LocalDate.now()));
-        ventas.add(new Ventas(8, 3, 3, LocalDate.now()));
+        ventas.add(new Ventas(8, 3, 3, LocalDate.now()));    
+        }
     }
-
+    
     public Productos buscarPorCodigo(int id) {
         Productos prod = null;
 
@@ -60,7 +62,7 @@ public class Servicios {
     public List<Productos> buscarPorPrecio(double precio) {
         List<Productos> pr = new ArrayList<>();
         for (Productos productos : product) {
-            if (precio == productos.getPrecio()) {
+            if (precio >= productos.getPrecio()) {
                 pr.add(productos);
             }
         }
@@ -80,22 +82,52 @@ public class Servicios {
     }
 
     public void generarVenta(int numProd, int codVend, int cantVent) {
+
         int cantVenta = ventas.size();
-
-        ventas.add(new Ventas(numProd, codVend, cantVent, LocalDate.now()));
-
+        
+        if (validarVenta(codVend, numProd, cantVent)) {
+            ventas.add(new Ventas(numProd, codVend, cantVent, LocalDate.now()));
+            for (Ventas p : ventas) {
+                System.out.println(p);
+            }
+            System.out.println("tventas" + ventas.size());
+        }
         if (cantVenta != ventas.size()) {
             System.out.println("Se registro la venta Exitosamente");
-            //JOptionPane.showMessageDialog(null, "Se regsitro la venta Exitosamente");
+        } else {
+            //JOptionPane.showMessageDialog(null, "NO se cargo la venta.");
+            System.out.println("NO se cargo la venta.");
         }
 
+    }
+
+    public void erroresGenerarProducto(int numProd, int codVend, int cantVent) {
+        if (!validarProducto(numProd)) {
+            System.out.println("***El Producto NO existe.***\n");
+        }
+        if (!validarVendedor(codVend)) {
+            System.out.println("***El codigo de vendedor no corresponde a ningun Vendedor.***\n");
+
+        }
+        if (!validarCantVent(cantVent)) {
+            System.out.println("***La cantidad de articulos vendidos no puede ser menor a 1.***\n");
+        }
+    }
+
+    public boolean validarVenta(int cVendedor, int cProd, int cantVent) {
+        boolean validarVenta = false;
+
+        if (validarVendedor(cVendedor) && validarProducto(cProd) && validarCantVent(cantVent)) {
+            validarVenta = true;
+        }
+        return validarVenta;
     }
 
     public double calcularComision(int codVendedor) {
         double comision = 0;
 
         for (Ventas ventas : ventas) {
-            double pres = 0;
+            double presio = 0;
             double porcentaje;
 
             if (codVendedor == ventas.getCodVendedor()) {
@@ -105,8 +137,8 @@ public class Servicios {
                     porcentaje = 0.1;
                 }
 
-                pres = precioProducto(ventas.getCodProd());
-                comision += ventas.getCantVentas() * pres * porcentaje;
+                presio = precioProducto(ventas.getCodProd());
+                comision += ventas.getCantVentas() * presio * porcentaje;
             }
         }
         return comision;
@@ -116,4 +148,35 @@ public class Servicios {
         Productos prod = buscarPorCodigo(codProd);
         return prod.getPrecio();
     }
+
+    private boolean validarProducto(int numProd) {
+        boolean vProd = false;
+        for (Productos productos : product) {
+            if (numProd == productos.getCodigo()) {
+                vProd = true;
+                break;
+            }
+        }
+        return vProd;
+    }
+
+    private boolean validarVendedor(int codVend) {
+        boolean vVend = false;
+        for (Ventas vent : ventas) {
+            if (codVend == vent.getCodVendedor()) {
+                vVend = true;
+                break;
+            }
+        }
+        return vVend;
+    }
+
+    private boolean validarCantVent(int cantVent) {
+        boolean cVent = false;
+        if (cantVent >= 1) {
+            cVent = true;
+        }
+        return cVent;
+    }
+
 }
