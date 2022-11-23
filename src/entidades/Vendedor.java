@@ -1,4 +1,4 @@
-package main;
+package entidades;
 
 public class Vendedor {
     private int codigo;

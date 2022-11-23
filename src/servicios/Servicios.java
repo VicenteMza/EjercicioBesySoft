@@ -1,9 +1,11 @@
-package main;
+package servicios;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JOptionPane;
+import entidades.Productos;
+import entidades.Vendedor;
+import entidades.Ventas;
 
 public class Servicios {
 
