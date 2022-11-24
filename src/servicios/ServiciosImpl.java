@@ -88,24 +88,33 @@ public class ServiciosImpl implements IServicios {
     }
 
     @Override
-    public void generarVenta(int numProd, int codVend, int cantVent) {
-
+    public boolean generarVenta(int numProd, int codVend, int cantVent) {
+        boolean ventaGenerada = false;
         int cantVenta = ventas.size();
-
-        if (validarVendedor(codVend) && validarProducto(numProd) && validarCantVent(cantVent)) {
+        boolean valProd = validarProducto(numProd);
+        boolean valVend = validarVendedor(codVend);
+        boolean valCantVenta = validarCantVent(cantVent);
+        
+        if (valProd && valVend && valCantVenta) {
             ventas.add(new Ventas(numProd, codVend, cantVent));
-            for (Ventas p : ventas) {
-                System.out.println(p);
-            }
-            System.out.println("tventas" + ventas.size());
+     
         }
         if (cantVenta != ventas.size()) {
-            System.out.println("Se registro la venta Exitosamente");
-        } else {
-            //JOptionPane.showMessageDialog(null, "NO se cargo la venta.");
-            System.out.println("NO se cargo la venta.");
+            ventaGenerada = true;
         }
-
+        
+        if (!valProd) {
+            JOptionPane.showMessageDialog(null, "***No se encontro ningun Producto con ese ese numero de producto***");
+        }
+        if (!valVend) {
+            JOptionPane.showMessageDialog(null, "***No se encontro ningun Vendedor conese codigo ***");
+        }
+        if (!valCantVenta) {
+            JOptionPane.showMessageDialog(null, "***La cantidad de productos no puede ser MENOR a '0'***");
+        }
+        
+        
+           return ventaGenerada;
     }
 
     @Override
@@ -150,6 +159,7 @@ public class ServiciosImpl implements IServicios {
                 break;
             }
         }
+        
         return validar;
     }
 

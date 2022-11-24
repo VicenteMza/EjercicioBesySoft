@@ -1,7 +1,5 @@
 package entidades;
 
-import java.util.List;
-
 public class Productos {
     private int codigo;
     private String nombre;

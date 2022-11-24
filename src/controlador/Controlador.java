@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Scanner;
 import servicios.IServicios;
 import servicios.ServiciosImpl;
+import javax.swing.JOptionPane;
 
 public class Controlador {
 
@@ -13,6 +14,7 @@ public class Controlador {
     private IServicios iServicios = new ServiciosImpl();
     private boolean opcion = true;
     private int busqueda = 0;
+    private JOptionPane jOptionPane = new JOptionPane();
 
     public void menuPrincipal() {
 
@@ -20,7 +22,6 @@ public class Controlador {
             int tipoBusq = 0;
             boolean salida = false;
             List<Productos> pr;
-            Productos producto;
 
             System.out.println("Elija una OPCION numerica:\n"
                     + "1. Buscar PRODUCTO por 'CODIGO'\n"
@@ -32,7 +33,7 @@ public class Controlador {
             try {
                 busqueda = in.nextInt();
             } catch (InputMismatchException e) {
-                //JOptionPane.showMessageDialog(null, "Debe ingresar un NUMERO estero\n");
+                JOptionPane.showMessageDialog(jOptionPane, "Debe ingresar un NUMERO estero\n");
                 System.out.println("Debe ingresar un NUMERO entero"
                         + "\n--------------------");
                 //limpio la variable 'in' para recibir un nuevo dato
@@ -48,6 +49,7 @@ public class Controlador {
                             tipoBusq = in.nextInt();
 
                         } catch (InputMismatchException e) {
+                            JOptionPane.showMessageDialog(jOptionPane, "Debe ingresar un codigo de producto(Numerico)");
                             System.out.println("Debe ingresar un codigo de producto(Numerico)"
                                     + "\n--------------------");
                             in.nextLine();
@@ -93,6 +95,7 @@ public class Controlador {
                             tipoBusq = in.nextInt();
                             salida = false;
                         } catch (InputMismatchException e) {
+                            JOptionPane.showMessageDialog(jOptionPane, "Debe ingresar Precio Numerico");
                             System.out.println("Debe ingresar Precio Numerico"
                                     + "\n--------------------");
                             in.nextLine();
@@ -136,8 +139,8 @@ public class Controlador {
                     calcularComision();
                     break;
                 default:
+                    JOptionPane.showMessageDialog(jOptionPane, "Opcion ingresada INCORRECTA vuelva  intentar.");
                     System.out.println("Opcion ingresada INCORRECTA vuelva  intentar.");
-                    //JOptionPane.showMessageDialog(null, "Opcion ingresada INCORRECTA vuelva  intentar");
                     break;
             }
         }
@@ -147,13 +150,10 @@ public class Controlador {
         int codV = 0;
         int codP = 0;
         int cantVentas = 0;
-        boolean salida = false;
-        boolean valProd;
-        boolean valVend;
-        boolean valCantVenta;
+        boolean salida;
 
         do {
-
+            salida = false;
             try {
                 System.out.println("Ingrese el numero del codigo del VENDEDOR.");
                 codV = in.nextInt();
@@ -163,30 +163,19 @@ public class Controlador {
 
                 System.out.println("Ingrese la CANTIDAD DE VENTAS.");
                 cantVentas = in.nextInt();
-                salida = false;
             } catch (InputMismatchException e) {
+                JOptionPane.showMessageDialog(jOptionPane, "Todos los valores deben ser NUMERICOS");
                 System.out.println("Todos los valores deben ser NUMERICOS\n");
                 in.next();
                 salida = true;
             }
-            valProd = iServicios.validarProducto(codP);
-            valVend = iServicios.validarVendedor(codV);
-            valCantVenta = iServicios.validarCantVent(cantVentas);
 
-            if (valProd && valVend && valCantVenta) {
-                iServicios.generarVenta(codP, codV, cantVentas);
+            if (iServicios.generarVenta(codP, codV, cantVentas)) {
+                JOptionPane.showMessageDialog(jOptionPane, "Se registro la venta Exitosamente");
+                System.out.println("Se registro la venta Exitosamente");
             } else {
-                int aux = 0;
-                if (!valProd) {
-                    aux = 1;
-                }
-                if (valVend) {
-                    aux = 2;
-                }
-                if (valCantVenta) {
-                    aux = 3;
-                }
-                mensajeNoEncontrado(aux);
+                JOptionPane.showMessageDialog(jOptionPane, "NO se cargo la venta.");
+                System.out.println("NO se cargo la venta.\n");
 
                 salida = true;
             }
@@ -203,6 +192,7 @@ public class Controlador {
                 numV = in.nextInt();
                 salida = false;
             } catch (InputMismatchException e) {
+                JOptionPane.showMessageDialog(jOptionPane, "Debe ingresar un CODIGO NUMERICO entero");
                 System.out.println("Debe ingresar un CODIGO NUMERICO entero\n");
                 in.next();
                 salida = true;
@@ -232,21 +222,26 @@ public class Controlador {
     }
 
     private void mensajeNoEncontrado(int tipoBusq) {
-        String mensaje = "";
+        String mensaje1 = "***No se encontro el Producto***";
+        String mensaje2 = "***No se encontro ningun Producto con ese nombre***";
+        String mensaje3 = "***No se encontro ningun Producto con ese Precio***";
+        String mensaje4 = "***No se encontro Productos con esa categoria***";
 
         if (tipoBusq == 1) {
-            mensaje = "***No se encontro el Producto***";
+            JOptionPane.showMessageDialog(jOptionPane, mensaje1);
+            System.out.println(mensaje1);
         }
         if (tipoBusq == 2) {
-            mensaje = "***No se encontro ningun Producto con ese nombre***";
+            JOptionPane.showMessageDialog(jOptionPane, mensaje2);
+            System.out.println(mensaje2);
         }
         if (tipoBusq == 3) {
-            mensaje = "***No se encontro ningun Producto con ese Precio***";
+            JOptionPane.showMessageDialog(jOptionPane, mensaje3);
+            System.out.println(mensaje3);
         }
         if (tipoBusq == 4) {
-            mensaje = "***No se encontro Productos con esa categoria***";
+            JOptionPane.showMessageDialog(jOptionPane, mensaje4);
+            System.out.println(mensaje4);
         }
-        //JOptionPane.showMessageDialog(null, mensaje);
-        System.out.println(mensaje);
     }
 }
