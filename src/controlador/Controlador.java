@@ -4,17 +4,15 @@ import entidades.Productos;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
-import servicios.Servicios;
+import servicios.IServicios;
+import servicios.ServiciosImpl;
 
 public class Controlador {
 
     private Scanner in = new Scanner(System.in);
-    private Servicios servi = new Servicios();
+    private IServicios iServicios = new ServiciosImpl();
     private boolean opcion = true;
     private int busqueda = 0;
-
-    public Controlador() {
-    }
 
     public void menuPrincipal() {
 
@@ -22,6 +20,7 @@ public class Controlador {
             int tipoBusq = 0;
             boolean salida = false;
             List<Productos> pr;
+            Productos producto;
 
             System.out.println("Elija una OPCION numerica:\n"
                     + "1. Buscar PRODUCTO por 'CODIGO'\n"
@@ -47,7 +46,7 @@ public class Controlador {
 
                         try {
                             tipoBusq = in.nextInt();
-                            salida = false;
+
                         } catch (InputMismatchException e) {
                             System.out.println("Debe ingresar un codigo de producto(Numerico)"
                                     + "\n--------------------");
@@ -55,14 +54,15 @@ public class Controlador {
                             salida = true;
                         }
 
-                        if (servi.buscarPorCodigo(tipoBusq) == null) {
+                        if (!iServicios.validarProducto(tipoBusq)) {
                             mensajeNoEncontrado(busqueda);
                             salida = true;
+
                         } else {
-                            System.out.println(servi.buscarPorCodigo(tipoBusq));
+                            System.out.println(iServicios.buscarPorCodigo(tipoBusq));
 
                             elegirSiCompraONo();
-
+                            salida = false;
                         }
                     } while (salida);
                     break;
@@ -70,16 +70,15 @@ public class Controlador {
                     do {
                         System.out.println("Ingrese el nombre del producto.");
                         String nomP = in.next();
-                        pr = servi.buscarPorNombre(nomP);
-
-                        pr.forEach((productos) -> {
-                            System.out.println(productos);
-                        });
+                        pr = iServicios.buscarPorNombre(nomP);
 
                         if (pr.isEmpty()) {
                             mensajeNoEncontrado(busqueda);
                             salida = true;
                         } else {
+                            pr.forEach((productos) -> {
+                                System.out.println(productos);
+                            });
                             elegirSiCompraONo();
                             salida = false;
                         }
@@ -101,7 +100,7 @@ public class Controlador {
                         }
                     } while (salida);
 
-                    pr = servi.buscarPorPrecio(tipoBusq);
+                    pr = iServicios.buscarPorPrecio(tipoBusq);
                     for (Productos prod : pr) {
                         System.out.println(prod);
                     }
@@ -119,10 +118,10 @@ public class Controlador {
                     do {
                         System.out.println("Escriba la CATEGORIA del producto.");
                         String cat = in.next();
-                        pr = servi.buscarPorCategoria(cat);
+                        pr = iServicios.buscarPorCategoria(cat);
 
                         if (pr.isEmpty()) {
-                            mensajeNoEncontrado(tipoBusq);
+                            mensajeNoEncontrado(busqueda);
                         } else {
                             for (Productos prod : pr) {
                                 System.out.println(prod);
@@ -149,6 +148,9 @@ public class Controlador {
         int codP = 0;
         int cantVentas = 0;
         boolean salida = false;
+        boolean valProd;
+        boolean valVend;
+        boolean valCantVenta;
 
         do {
 
@@ -167,10 +169,25 @@ public class Controlador {
                 in.next();
                 salida = true;
             }
-            if (servi.validarVenta(codV, codP, cantVentas)) {
-                servi.generarVenta(codP, codV, cantVentas);
+            valProd = iServicios.validarProducto(codP);
+            valVend = iServicios.validarVendedor(codV);
+            valCantVenta = iServicios.validarCantVent(cantVentas);
+
+            if (valProd && valVend && valCantVenta) {
+                iServicios.generarVenta(codP, codV, cantVentas);
             } else {
-                servi.erroresGenerarProducto(codV, codP, cantVentas);
+                int aux = 0;
+                if (!valProd) {
+                    aux = 1;
+                }
+                if (valVend) {
+                    aux = 2;
+                }
+                if (valCantVenta) {
+                    aux = 3;
+                }
+                mensajeNoEncontrado(aux);
+
                 salida = true;
             }
         } while (salida);
@@ -179,7 +196,7 @@ public class Controlador {
     private void calcularComision() {
         int numV = 0;
         boolean salida = true;
-        
+
         do {
             System.out.println("Ingrese su CODIGO de vendedor");
             try {
@@ -193,7 +210,7 @@ public class Controlador {
 
         } while (salida);
 
-        System.out.println("Su comision es: " + servi.calcularComision(numV) + "\n");
+        System.out.println("Su comision es: " + iServicios.calcularComision(numV) + "\n");
     }
 
     private void elegirSiCompraONo() {
@@ -218,16 +235,16 @@ public class Controlador {
         String mensaje = "";
 
         if (tipoBusq == 1) {
-            mensaje = "No se encontro el Producto";
+            mensaje = "***No se encontro el Producto***";
         }
         if (tipoBusq == 2) {
-            mensaje = "No se encontro ningun Producto con ese nombre";
+            mensaje = "***No se encontro ningun Producto con ese nombre***";
         }
         if (tipoBusq == 3) {
-            mensaje = "No se encontro ningun Producto con ese Precio";
+            mensaje = "***No se encontro ningun Producto con ese Precio***";
         }
         if (tipoBusq == 4) {
-            mensaje = "No se encontro Productos con esa categoria";
+            mensaje = "***No se encontro Productos con esa categoria***";
         }
         //JOptionPane.showMessageDialog(null, mensaje);
         System.out.println(mensaje);

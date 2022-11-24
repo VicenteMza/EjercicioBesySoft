@@ -7,13 +7,13 @@ import entidades.Productos;
 import entidades.Vendedor;
 import entidades.Ventas;
 
-public class Servicios {
+public class ServiciosImpl implements IServicios {
 
     private static List<Productos> product = new ArrayList<>();
     private static List<Vendedor> vendedor = new ArrayList<>();
     private static List<Ventas> ventas = new ArrayList<>();
 
-    public Servicios() {
+    public ServiciosImpl() {
         if (ventas.isEmpty()) {
             product.add(new Productos(1, "Lavarropa", 150000, "Eletrodomestico"));
             product.add(new Productos(2, "Cocina", 100000, "Eletrodomestico"));
@@ -37,8 +37,9 @@ public class Servicios {
         }
     }
 
+    @Override
     public Productos buscarPorCodigo(int id) {
-        Productos prod = null;
+        Productos prod = new Productos();
 
         for (Productos productos : product) {
             if (id == productos.getCodigo()) {
@@ -49,6 +50,7 @@ public class Servicios {
         return prod;
     }
 
+    @Override
     public List<Productos> buscarPorNombre(String nombrePr) {
         String nomb = nombrePr.toLowerCase();
 
@@ -61,6 +63,7 @@ public class Servicios {
         return pr;
     }
 
+    @Override
     public List<Productos> buscarPorPrecio(double precio) {
         List<Productos> pr = new ArrayList<>();
         for (Productos productos : product) {
@@ -71,6 +74,7 @@ public class Servicios {
         return pr;
     }
 
+    @Override
     public List<Productos> buscarPorCategoria(String categ) {
         String cat = categ.toLowerCase();
         List<Productos> pr = new ArrayList<>();
@@ -83,11 +87,12 @@ public class Servicios {
         return pr;
     }
 
+    @Override
     public void generarVenta(int numProd, int codVend, int cantVent) {
 
         int cantVenta = ventas.size();
 
-        if (validarVenta(codVend, numProd, cantVent)) {
+        if (validarVendedor(codVend) && validarProducto(numProd) && validarCantVent(cantVent)) {
             ventas.add(new Ventas(numProd, codVend, cantVent));
             for (Ventas p : ventas) {
                 System.out.println(p);
@@ -103,28 +108,7 @@ public class Servicios {
 
     }
 
-    public void erroresGenerarProducto(int numProd, int codVend, int cantVent) {
-        if (!validarProducto(numProd)) {
-            System.out.println("***El Producto NO existe.***\n");
-        }
-        if (!validarVendedor(codVend)) {
-            System.out.println("***El codigo de vendedor no corresponde a ningun Vendedor.***\n");
-
-        }
-        if (!validarCantVent(cantVent)) {
-            System.out.println("***La cantidad de articulos vendidos no puede ser menor a 1.***\n");
-        }
-    }
-
-    public boolean validarVenta(int cVendedor, int cProd, int cantVent) {
-        boolean validarVenta = false;
-
-        if (validarVendedor(cVendedor) && validarProducto(cProd) && validarCantVent(cantVent)) {
-            validarVenta = true;
-        }
-        return validarVenta;
-    }
-
+    @Override
     public double calcularComision(int codVendedor) {
         double comision = 0;
 
@@ -144,7 +128,7 @@ public class Servicios {
                     comision += ventas.getCantVentas() * presio * porcentaje;
                 }
             }
-        }else{
+        } else {
             System.out.println("El vendedor '" + codVendedor + "' NO EXISTE");
         }
 
@@ -152,12 +136,14 @@ public class Servicios {
     }
 
     private double precioProducto(int codProd) {
-        Productos prod = buscarPorCodigo(codProd);
-        return prod.getPrecio();
+
+        return buscarPorCodigo(codProd).getPrecio();
     }
 
-    private boolean validarProducto(int numProd) {
+    @Override
+    public boolean validarProducto(int numProd) {
         boolean validar = false;
+
         for (Productos productos : product) {
             if (numProd == productos.getCodigo()) {
                 validar = true;
@@ -167,7 +153,8 @@ public class Servicios {
         return validar;
     }
 
-    private boolean validarVendedor(int codVend) {
+    @Override
+    public boolean validarVendedor(int codVend) {
         boolean validar = false;
         for (Ventas vent : ventas) {
             if (codVend == vent.getCodVendedor()) {
@@ -178,7 +165,8 @@ public class Servicios {
         return validar;
     }
 
-    private boolean validarCantVent(int cantVent) {
+    @Override
+    public boolean validarCantVent(int cantVent) {
         boolean validar = false;
         if (cantVent >= 1) {
             validar = true;

@@ -1,7 +1,5 @@
 package entidades;
 
-import java.time.LocalDate;
-
 public class Ventas {
     private int codProd;
     private int codVendedor;
