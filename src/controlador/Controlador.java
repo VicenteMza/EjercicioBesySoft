@@ -10,140 +10,176 @@ import javax.swing.JOptionPane;
 
 public class Controlador {
 
-    private Scanner in = new Scanner(System.in);
-    private IServicios iServicios = new ServiciosImpl();
-    private boolean opcion = true;
-    private int busqueda = 0;
-    private JOptionPane jOptionPane = new JOptionPane();
+    private Scanner in;
+    private IServicios iServicios;
+    private JOptionPane jOptionPane;
+
+    public Controlador() {
+        this.in = new Scanner(System.in);
+        this.iServicios = new ServiciosImpl();
+        this.jOptionPane = new JOptionPane();
+    }
 
     public void menuPrincipal() {
+        int busqueda = 0;
 
-        while (opcion) {
-            int tipoBusq = 0;
-            boolean salida = false;
-            List<Productos> pr;
+        while (true) {
 
-            System.out.println("Elija una OPCION numerica:\n"
-                    + "1. Buscar PRODUCTO por 'CODIGO'\n"
-                    + "2. Buscar PRODUCTO por 'NOMBRE'\n"
-                    + "3. Buscar PRODUCTO por 'PRECIO'\n"
-                    + "4. Buscar PRODUCTO por 'CATEGORIA'\n"
-                    + "5. Ver 'COMISIÓN' de un Vendedor\n");
-
-            try {
-                busqueda = in.nextInt();
-            } catch (InputMismatchException e) {
-                JOptionPane.showMessageDialog(jOptionPane, "Debe ingresar un NUMERO estero\n");
-                System.out.println("Debe ingresar un NUMERO entero"
-                        + "\n--------------------");
-                //limpio la variable 'in' para recibir un nuevo dato
-                in.next();
-            }
+            busqueda = this.seleccionarOpcionMenu();
 
             switch (busqueda) {
                 case 1:
-                    do {
-                        System.out.println("Ingrese el codigo de producto.");
-
-                        try {
-                            tipoBusq = in.nextInt();
-
-                        } catch (InputMismatchException e) {
-                            JOptionPane.showMessageDialog(jOptionPane, "Debe ingresar un codigo de producto(Numerico)");
-                            System.out.println("Debe ingresar un codigo de producto(Numerico)"
-                                    + "\n--------------------");
-                            in.nextLine();
-                            salida = true;
-                        }
-
-                        if (!iServicios.validarProducto(tipoBusq)) {
-                            mensajeNoEncontrado(busqueda);
-                            salida = true;
-
-                        } else {
-                            System.out.println(iServicios.buscarPorCodigo(tipoBusq));
-
-                            elegirSiCompraONo();
-                            salida = false;
-                        }
-                    } while (salida);
+                    this.busquedaPorProducto();
                     break;
                 case 2:
-                    do {
-                        System.out.println("Ingrese el nombre del producto.");
-                        String nomP = in.next();
-                        pr = iServicios.buscarPorNombre(nomP);
-
-                        if (pr.isEmpty()) {
-                            mensajeNoEncontrado(busqueda);
-                            salida = true;
-                        } else {
-                            pr.forEach((productos) -> {
-                                System.out.println(productos);
-                            });
-                            elegirSiCompraONo();
-                            salida = false;
-                        }
-                    } while (salida);
-
+                    this.busquedaPorNombreDeProducto();
                     break;
                 case 3:
-                    salida = false;
-                    do {
-                        try {
-                            System.out.println("Ingrese el Precio maximo del Producto.");
-                            tipoBusq = in.nextInt();
-                            salida = false;
-                        } catch (InputMismatchException e) {
-                            JOptionPane.showMessageDialog(jOptionPane, "Debe ingresar Precio Numerico");
-                            System.out.println("Debe ingresar Precio Numerico"
-                                    + "\n--------------------");
-                            in.nextLine();
-                            salida = true;
-                        }
-                    } while (salida);
-
-                    pr = iServicios.buscarPorPrecio(tipoBusq);
-                    for (Productos prod : pr) {
-                        System.out.println(prod);
-                    }
-
-                    if (pr.isEmpty()) {
-                        mensajeNoEncontrado(busqueda);
-                    } else {
-                        elegirSiCompraONo();
-
-                    }
+                    this.busquedaPorPrecioDeProducto();
                     break;
                 case 4:
-                    salida = true;
-
-                    do {
-                        System.out.println("Escriba la CATEGORIA del producto.");
-                        String cat = in.next();
-                        pr = iServicios.buscarPorCategoria(cat);
-
-                        if (pr.isEmpty()) {
-                            mensajeNoEncontrado(busqueda);
-                        } else {
-                            for (Productos prod : pr) {
-                                System.out.println(prod);
-                            }
-                            elegirSiCompraONo();
-                            salida = false;
-                        }
-                    } while (salida);
-
+                    this.BusquedaPorCategoria();
                     break;
                 case 5:
-                    calcularComision();
+                    this.calcularComision();
                     break;
+                case 6:
+                    return;
                 default:
                     JOptionPane.showMessageDialog(jOptionPane, "Opcion ingresada INCORRECTA vuelva  intentar.");
                     System.out.println("Opcion ingresada INCORRECTA vuelva  intentar.");
                     break;
             }
         }
+    }
+
+    private void BusquedaPorCategoria() {
+        List<Productos> pr;
+        
+        do {
+            System.out.println("Escriba la CATEGORIA del producto.");
+            String cat = in.next();
+            pr = iServicios.buscarPorCategoria(cat);
+
+            if (pr.isEmpty()) {
+                JOptionPane.showMessageDialog(jOptionPane, "***No se encontro Productos con esa categoria***");
+            } else {
+                for (Productos prod : pr) {
+                    System.out.println(prod);
+                }
+                elegirSiCompraONo();
+                break;
+            }
+        } while (true);
+    }
+
+    private void busquedaPorPrecioDeProducto() {
+        int tipoBusq = 0;
+        List<Productos> pr;
+
+        do {
+            System.out.println("Ingrese el Precio maximo del Producto.");
+
+            try {
+                tipoBusq = in.nextInt();
+            } catch (InputMismatchException e) {
+                JOptionPane.showMessageDialog(jOptionPane, "Debe ingresar Precio Numerico");
+                System.out.println("Debe ingresar Precio Numerico"
+                        + "\n--------------------");
+                in.nextLine();
+            }
+            break;
+        } while (true);
+
+        pr = iServicios.buscarPorPrecio(tipoBusq);
+        for (Productos prod : pr) {
+            System.out.println(prod);
+        }
+
+        if (pr.isEmpty()) {
+            jOptionPane.showMessageDialog(jOptionPane, "***No se encontro ningun Producto con ese Precio***");
+        } else {
+            elegirSiCompraONo();
+
+        }
+    }
+
+    private void busquedaPorNombreDeProducto() {
+        List<Productos> pr;
+
+        do {
+            System.out.println("Ingrese el nombre del producto.");
+            String nomP = in.next();
+            pr = iServicios.buscarPorNombre(nomP);
+
+            if (pr.isEmpty()) {
+                JOptionPane.showMessageDialog(jOptionPane, "***No se encontro ningun Producto con ese nombre***");
+
+            } else {
+                pr.forEach((productos) -> {
+                    System.out.println(productos);
+                });
+
+                elegirSiCompraONo();
+                break;
+            }
+        } while (true);
+    }
+
+    private void busquedaPorProducto() {
+        int tipoBusq = 0;
+
+        do {
+            System.out.println("Ingrese el codigo de producto.");
+
+            try {
+                tipoBusq = in.nextInt();
+
+            } catch (InputMismatchException e) {
+                JOptionPane.showMessageDialog(jOptionPane, "Debe ingresar un codigo de producto(Numerico)");
+                System.out.println("Debe ingresar un codigo de producto(Numerico)"
+                        + "\n--------------------");
+                in.nextLine();
+                //Va a la siguiente Iteracion
+                continue;
+            }
+
+            if (!iServicios.validarProducto(tipoBusq)) {
+                JOptionPane.showMessageDialog(jOptionPane, "***No se encontro el Producto***");
+            } else {
+                System.out.println(iServicios.buscarPorCodigo(tipoBusq));
+
+                elegirSiCompraONo();
+                break;
+            }
+        } while (true);
+    }
+
+    private int seleccionarOpcionMenu() {
+        int busqueda = 0;
+
+        do {
+            
+            System.out.println("Elija una OPCION numerica:\n"
+                    + "1. Buscar PRODUCTO por 'CODIGO'\n"
+                    + "2. Buscar PRODUCTO por 'NOMBRE'\n"
+                    + "3. Buscar PRODUCTO por 'PRECIO'\n"
+                    + "4. Buscar PRODUCTO por 'CATEGORIA'\n"
+                    + "5. Ver 'COMISIÓN' de un Vendedor\n"
+                    + "6. SALIR");
+
+            try {
+                busqueda = in.nextInt();
+                break;
+            } catch (InputMismatchException e) {
+                JOptionPane.showMessageDialog(jOptionPane, "Debe ingresar un NUMERO estero\n");
+               
+                //limpio la variable 'in' para recibir un nuevo dato
+                in.next();
+
+            }
+        } while (true);
+        return busqueda;
     }
 
     private void generarVenta() {
@@ -207,7 +243,7 @@ public class Controlador {
         boolean salida = true;
         String genCom = "";
         do {
-            System.out.println("Quiere Realizar una compra?\n"
+            System.out.println("Quiere Realizar una venta?\n"
                     + "Y/N");
             genCom = in.next();
 
@@ -219,29 +255,5 @@ public class Controlador {
                 salida = false;
             }
         } while (salida);
-    }
-
-    private void mensajeNoEncontrado(int tipoBusq) {
-        String mensaje1 = "***No se encontro el Producto***";
-        String mensaje2 = "***No se encontro ningun Producto con ese nombre***";
-        String mensaje3 = "***No se encontro ningun Producto con ese Precio***";
-        String mensaje4 = "***No se encontro Productos con esa categoria***";
-
-        if (tipoBusq == 1) {
-            JOptionPane.showMessageDialog(jOptionPane, mensaje1);
-            System.out.println(mensaje1);
-        }
-        if (tipoBusq == 2) {
-            JOptionPane.showMessageDialog(jOptionPane, mensaje2);
-            System.out.println(mensaje2);
-        }
-        if (tipoBusq == 3) {
-            JOptionPane.showMessageDialog(jOptionPane, mensaje3);
-            System.out.println(mensaje3);
-        }
-        if (tipoBusq == 4) {
-            JOptionPane.showMessageDialog(jOptionPane, mensaje4);
-            System.out.println(mensaje4);
-        }
     }
 }

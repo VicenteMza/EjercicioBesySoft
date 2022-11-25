@@ -6,35 +6,38 @@ import javax.swing.JOptionPane;
 import entidades.Productos;
 import entidades.Vendedor;
 import entidades.Ventas;
+import java.time.LocalDate;
 
 public class ServiciosImpl implements IServicios {
 
-    private static List<Productos> product = new ArrayList<>();
-    private static List<Vendedor> vendedor = new ArrayList<>();
-    private static List<Ventas> ventas = new ArrayList<>();
+    private List<Productos> product;
+    private List<Vendedor> vendedor;
+    private List<Ventas> ventas;
 
     public ServiciosImpl() {
-        if (ventas.isEmpty()) {
-            product.add(new Productos(1, "Lavarropa", 150000, "Eletrodomestico"));
-            product.add(new Productos(2, "Cocina", 100000, "Eletrodomestico"));
-            product.add(new Productos(3, "Cerveza", 500, "Bebida"));
-            product.add(new Productos(4, "Gaseosa", 400, "Bebida"));
-            product.add(new Productos(5, "Leche", 200, "Lacteo"));
-            product.add(new Productos(6, "Leche Descremada", 100, "Lacteo"));
-            product.add(new Productos(7, "Yogurt", 300, "Lacteo"));
-            product.add(new Productos(8, "Maiz", 100, "Cereal"));
+        this.product = new ArrayList<>();
+        this.vendedor = new ArrayList<>();
+        this.ventas = new ArrayList<>();
 
-            vendedor.add(new Vendedor(1, "Matias", 50000));
-            vendedor.add(new Vendedor(2, "Maria", 50000));
-            vendedor.add(new Vendedor(3, "Daiana", 50000));
+        product.add(new Productos(1, "Lavarropa", 150000, "Eletrodomestico"));
+        product.add(new Productos(2, "Cocina", 100000, "Eletrodomestico"));
+        product.add(new Productos(3, "Cerveza", 500, "Bebida"));
+        product.add(new Productos(4, "Gaseosa", 400, "Bebida"));
+        product.add(new Productos(5, "Leche", 200, "Lacteo"));
+        product.add(new Productos(6, "Leche Descremada", 100, "Lacteo"));
+        product.add(new Productos(7, "Yogurt", 300, "Lacteo"));
+        product.add(new Productos(8, "Maiz", 100, "Cereal"));
 
-            ventas.add(new Ventas(1, 1, 2));
-            ventas.add(new Ventas(2, 1, 5));
-            ventas.add(new Ventas(4, 1, 1));
-            ventas.add(new Ventas(6, 2, 1));
-            ventas.add(new Ventas(1, 2, 2));
-            ventas.add(new Ventas(8, 3, 3));
-        }
+        vendedor.add(new Vendedor(1, "Matias", 50000));
+        vendedor.add(new Vendedor(2, "Maria", 50000));
+        vendedor.add(new Vendedor(3, "Daiana", 50000));
+
+        ventas.add(new Ventas(1, 1, 2, LocalDate.now()));
+        ventas.add(new Ventas(2, 1, 5, LocalDate.now()));
+        ventas.add(new Ventas(4, 1, 1, LocalDate.now()));
+        ventas.add(new Ventas(6, 2, 1, LocalDate.now()));
+        ventas.add(new Ventas(1, 2, 2, LocalDate.now()));
+        ventas.add(new Ventas(8, 3, 3, LocalDate.now()));
     }
 
     @Override
@@ -94,27 +97,29 @@ public class ServiciosImpl implements IServicios {
         boolean valProd = validarProducto(numProd);
         boolean valVend = validarVendedor(codVend);
         boolean valCantVenta = validarCantVent(cantVent);
-        
+
         if (valProd && valVend && valCantVenta) {
-            ventas.add(new Ventas(numProd, codVend, cantVent));
-     
+            ventas.add(new Ventas(numProd, codVend, cantVent, LocalDate.now()));
+
+        }
+        for (Ventas venta : ventas) {
+            System.out.println(venta);
         }
         if (cantVenta != ventas.size()) {
             ventaGenerada = true;
         }
-        
+
         if (!valProd) {
             JOptionPane.showMessageDialog(null, "***No se encontro ningun Producto con ese ese numero de producto***");
         }
         if (!valVend) {
-            JOptionPane.showMessageDialog(null, "***No se encontro ningun Vendedor conese codigo ***");
+            JOptionPane.showMessageDialog(null, "***No se encontro ningun Vendedor con ese codigo ***");
         }
         if (!valCantVenta) {
             JOptionPane.showMessageDialog(null, "***La cantidad de productos no puede ser MENOR a '0'***");
         }
-        
-        
-           return ventaGenerada;
+
+        return ventaGenerada;
     }
 
     @Override
@@ -151,16 +156,16 @@ public class ServiciosImpl implements IServicios {
 
     @Override
     public boolean validarProducto(int numProd) {
-        boolean validar = false;
+        boolean existe = false;
 
         for (Productos productos : product) {
             if (numProd == productos.getCodigo()) {
-                validar = true;
+                existe = true;
                 break;
             }
         }
-        
-        return validar;
+
+        return existe;
     }
 
     @Override

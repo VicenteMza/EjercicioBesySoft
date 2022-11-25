@@ -14,7 +14,6 @@ public interface IServicios {
         
         public boolean validarProducto(int numProd);
         public boolean validarVendedor(int codVend);
-        public boolean validarCantVent(int cantVent);
-        
+        public boolean validarCantVent(int cantVent);        
 
 }
