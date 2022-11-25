@@ -1,6 +1,7 @@
 package controlador;
 
 import entidades.Productos;
+import entidades.Ventas;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
@@ -55,7 +56,7 @@ public class Controlador {
 
     private void BusquedaPorCategoria() {
         List<Productos> pr;
-        
+
         do {
             System.out.println("Escriba la CATEGORIA del producto.");
             String cat = in.next();
@@ -67,6 +68,33 @@ public class Controlador {
                 for (Productos prod : pr) {
                     System.out.println(prod);
                 }
+                elegirSiCompraONo();
+                break;
+            }
+        } while (true);
+    }
+
+    private void busquedaPorProducto() {
+        int tipoBusq = 0;
+
+        do {
+
+            try {
+                tipoBusq = Integer.parseInt(jOptionPane.showInputDialog("Ingrese el codigo de producto."));
+
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(jOptionPane, "Debe ingresar un codigo de producto(Numerico)");
+                System.out.println("Debe ingresar un codigo de producto(Numerico)"
+                        + "\n--------------------");
+                continue;
+            }
+
+            if (!iServicios.validarProducto(tipoBusq)) {
+                JOptionPane.showMessageDialog(jOptionPane, "***No se encontro el Producto***");
+            } else {
+                JOptionPane.showMessageDialog(jOptionPane, iServicios.buscarPorCodigo(tipoBusq));
+                //System.out.println(iServicios.buscarPorCodigo(tipoBusq));
+
                 elegirSiCompraONo();
                 break;
             }
@@ -126,134 +154,90 @@ public class Controlador {
         } while (true);
     }
 
-    private void busquedaPorProducto() {
-        int tipoBusq = 0;
-
-        do {
-            System.out.println("Ingrese el codigo de producto.");
-
-            try {
-                tipoBusq = in.nextInt();
-
-            } catch (InputMismatchException e) {
-                JOptionPane.showMessageDialog(jOptionPane, "Debe ingresar un codigo de producto(Numerico)");
-                System.out.println("Debe ingresar un codigo de producto(Numerico)"
-                        + "\n--------------------");
-                in.nextLine();
-                //Va a la siguiente Iteracion
-                continue;
-            }
-
-            if (!iServicios.validarProducto(tipoBusq)) {
-                JOptionPane.showMessageDialog(jOptionPane, "***No se encontro el Producto***");
-            } else {
-                System.out.println(iServicios.buscarPorCodigo(tipoBusq));
-
-                elegirSiCompraONo();
-                break;
-            }
-        } while (true);
-    }
-
     private int seleccionarOpcionMenu() {
         int busqueda = 0;
-
         do {
-            
-            System.out.println("Elija una OPCION numerica:\n"
-                    + "1. Buscar PRODUCTO por 'CODIGO'\n"
-                    + "2. Buscar PRODUCTO por 'NOMBRE'\n"
-                    + "3. Buscar PRODUCTO por 'PRECIO'\n"
-                    + "4. Buscar PRODUCTO por 'CATEGORIA'\n"
-                    + "5. Ver 'COMISIÓN' de un Vendedor\n"
-                    + "6. SALIR");
 
             try {
-                busqueda = in.nextInt();
+                busqueda = Integer.parseInt(jOptionPane.showInputDialog("1. Buscar PRODUCTO por 'CODIGO'\n"
+                        + "2. Buscar PRODUCTO por 'NOMBRE'\n"
+                        + "3. Buscar PRODUCTO por 'PRECIO'\n"
+                        + "4. Buscar PRODUCTO por 'CATEGORIA'\n"
+                        + "5. Ver 'COMISIÓN' de un Vendedor\n"
+                        + "6. SALIR"));
                 break;
-            } catch (InputMismatchException e) {
-                JOptionPane.showMessageDialog(jOptionPane, "Debe ingresar un NUMERO estero\n");
-               
-                //limpio la variable 'in' para recibir un nuevo dato
-                in.next();
-
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(jOptionPane, "Debe ingresar un NUMERO entero\n");
             }
         } while (true);
         return busqueda;
     }
 
     private void generarVenta() {
-        int codV = 0;
-        int codP = 0;
+        int codigoVendedor = 0;
+        int codigoProducto = 0;
         int cantVentas = 0;
-        boolean salida;
+        Ventas venta;
 
         do {
-            salida = false;
             try {
-                System.out.println("Ingrese el numero del codigo del VENDEDOR.");
-                codV = in.nextInt();
+                codigoVendedor = Integer.parseInt(jOptionPane.showInputDialog("Ingrese el numero del codigo del VENDEDOR."));
 
-                System.out.println("Ingrese el numero del codigo del PRODUCTO.");
-                codP = in.nextInt();
+                codigoProducto = Integer.parseInt(jOptionPane.showInputDialog("Ingrese el Codigo del PRODUCTO."));
 
-                System.out.println("Ingrese la CANTIDAD DE VENTAS.");
-                cantVentas = in.nextInt();
-            } catch (InputMismatchException e) {
+                cantVentas = Integer.parseInt(jOptionPane.showInputDialog("Ingrese la CANTIDAD DE VENTAS."));
+            } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(jOptionPane, "Todos los valores deben ser NUMERICOS");
-                System.out.println("Todos los valores deben ser NUMERICOS\n");
-                in.next();
-                salida = true;
+                System.out.println("Todos los valores deben ser NUMERICOS" + e);
+                continue;
             }
 
-            if (iServicios.generarVenta(codP, codV, cantVentas)) {
-                JOptionPane.showMessageDialog(jOptionPane, "Se registro la venta Exitosamente");
+            venta = iServicios.generarVenta(codigoProducto, codigoVendedor, cantVentas);
+
+            if (venta != null) {
+                JOptionPane.showMessageDialog(jOptionPane, "Se registro la venta Exitosamente" + venta);
                 System.out.println("Se registro la venta Exitosamente");
-            } else {
-                JOptionPane.showMessageDialog(jOptionPane, "NO se cargo la venta.");
-                System.out.println("NO se cargo la venta.\n");
-
-                salida = true;
+                break;
             }
-        } while (salida);
+
+        } while (true);
     }
 
     private void calcularComision() {
-        int numV = 0;
-        boolean salida = true;
+        int codVendedor = 0;
 
         do {
-            System.out.println("Ingrese su CODIGO de vendedor");
             try {
-                numV = in.nextInt();
-                salida = false;
-            } catch (InputMismatchException e) {
+                codVendedor = Integer.parseInt(jOptionPane.showInputDialog("Ingrese su CODIGO de vendedor"));
+                break;
+            } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(jOptionPane, "Debe ingresar un CODIGO NUMERICO entero");
-                System.out.println("Debe ingresar un CODIGO NUMERICO entero\n");
-                in.next();
-                salida = true;
+                System.out.println("Debe ingresar un CODIGO NUMERICO entero\n" + e);
             }
+        } while (true);
 
-        } while (salida);
+        if (iServicios.validarVendedor(codVendedor)) {
+            JOptionPane.showMessageDialog(jOptionPane, "Su comision es: " + iServicios.calcularComision(codVendedor) + "\n");
+        } else {
+            JOptionPane.showMessageDialog(jOptionPane, "El vendedor " + codVendedor + " NO EXISTE");
+        }
 
-        System.out.println("Su comision es: " + iServicios.calcularComision(numV) + "\n");
     }
 
     private void elegirSiCompraONo() {
-        boolean salida = true;
-        String genCom = "";
+        String siONo = "";
         do {
-            System.out.println("Quiere Realizar una venta?\n"
-                    + "Y/N");
-            genCom = in.next();
 
-            if (genCom.equalsIgnoreCase("Y")) {
+            siONo = jOptionPane.showInputDialog("Quiere Realizar una venta?\n"
+                    + "Y/N");
+
+            if (siONo.equalsIgnoreCase("Y")) {
                 generarVenta();
-                salida = false;
-            } else if (genCom.equalsIgnoreCase("N")) {
-                System.out.println("Regresa al Menú de Busqueda de productos");
-                salida = false;
+                break;
+            } else if (siONo.equalsIgnoreCase("N")) {
+                JOptionPane.showMessageDialog(jOptionPane, "Regresaras al Menú de Busqueda de productos");
+                break;
             }
-        } while (salida);
+        } while (true);
     }
 }
