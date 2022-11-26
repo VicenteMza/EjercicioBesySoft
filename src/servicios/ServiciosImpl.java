@@ -10,23 +10,23 @@ import java.time.LocalDate;
 
 public class ServiciosImpl implements IServicios {
 
-    private List<Productos> producto;
+    private List<Productos> productos;
     private List<Vendedor> vendedor;
     private List<Ventas> ventas;
 
     public ServiciosImpl() {
-        this.producto = new ArrayList<>();
+        this.productos = new ArrayList<>();
         this.vendedor = new ArrayList<>();
         this.ventas = new ArrayList<>();
 
-        producto.add(new Productos(1, "Lavarropa", 150000, "Eletrodomestico"));
-        producto.add(new Productos(2, "Cocina", 100000, "Eletrodomestico"));
-        producto.add(new Productos(3, "Cerveza", 500, "Bebida"));
-        producto.add(new Productos(4, "Gaseosa", 400, "Bebida"));
-        producto.add(new Productos(5, "Leche", 200, "Lacteo"));
-        producto.add(new Productos(6, "Leche Descremada", 100, "Lacteo"));
-        producto.add(new Productos(7, "Yogurt", 300, "Lacteo"));
-        producto.add(new Productos(8, "Maiz", 100, "Cereal"));
+        productos.add(new Productos(1, "Lavarropa", 150000, "Eletrodomestico"));
+        productos.add(new Productos(2, "Cocina", 100000, "Eletrodomestico"));
+        productos.add(new Productos(3, "Cerveza", 500, "Bebida"));
+        productos.add(new Productos(4, "Gaseosa", 400, "Bebida"));
+        productos.add(new Productos(5, "Leche", 200, "Lacteo"));
+        productos.add(new Productos(6, "Leche Descremada", 100, "Lacteo"));
+        productos.add(new Productos(7, "Yogurt", 300, "Lacteo"));
+        productos.add(new Productos(8, "Maiz", 100, "Cereal"));
 
         vendedor.add(new Vendedor(1, "Matias", 50000));
         vendedor.add(new Vendedor(2, "Maria", 50000));
@@ -42,34 +42,35 @@ public class ServiciosImpl implements IServicios {
 
     @Override
     public Productos buscarPorCodigo(int id) {
-        Productos prod = new Productos();
+        Productos product = null;
 
-        for (Productos productos : producto) {
-            if (id == productos.getCodigo()) {
-                prod = productos;
+        for (Productos producto : productos) {
+            if (id == producto.getCodigo()) {
+                product = producto;
                 break;
             }
         }
-        return prod;
+        return product;
     }
 
     @Override
     public List<Productos> buscarPorNombre(String nombrePr) {
         String nomb = nombrePr.toLowerCase();
-
         List<Productos> pr = new ArrayList<>();
-        for (Productos productos : producto) {
+       
+        for (Productos productos : productos) {
             if (productos.getNombre().toLowerCase().contains(nomb)) {
                 pr.add(productos);
             }
-        }
+        }    
         return pr;
     }
 
     @Override
     public List<Productos> buscarPorPrecio(double precio) {
         List<Productos> pr = new ArrayList<>();
-        for (Productos productos : producto) {
+        
+        for (Productos productos : productos) {
             if (precio >= productos.getPrecio()) {
                 pr.add(productos);
             }
@@ -82,7 +83,7 @@ public class ServiciosImpl implements IServicios {
         String cat = categ.toLowerCase();
         List<Productos> pr = new ArrayList<>();
 
-        for (Productos productos : producto) {
+        for (Productos productos : productos) {
             if (productos.getCategoria().toLowerCase().contains(cat)) {
                 pr.add(productos);
             }
@@ -92,7 +93,7 @@ public class ServiciosImpl implements IServicios {
 
     @Override
     public Ventas generarVenta(int codProd, int codVend, int cantVent) {
-        boolean productoValido = validarProducto(codProd);
+        boolean productoValido = validarCodigoProducto(codProd);
         boolean vendedorValido = validarVendedor(codVend);
         boolean cantVentaValida = validarCantVent(cantVent);
         Ventas venta = null;
@@ -106,7 +107,7 @@ public class ServiciosImpl implements IServicios {
 
             ventas.add(venta);
         }
-        
+
         System.out.println(ventas.size());
         return venta;
     }
@@ -114,21 +115,25 @@ public class ServiciosImpl implements IServicios {
     @Override
     public double calcularComision(int codVendedor) {
         double comision = 0;
+        
+        if (validarVendedor(codVendedor)) {
+            for (Ventas ventas : ventas) {
+                double precio = 0;
+                double porcentaje;
 
-        for (Ventas ventas : ventas) {
-            double precio = 0;
-            double porcentaje;
+                if (codVendedor == ventas.getCodVendedor()) {
+                    if (ventas.getCantVentas() <= 2) {
+                        porcentaje = 0.05;
+                    } else {
+                        porcentaje = 0.1;
+                    }
 
-            if (codVendedor == ventas.getCodVendedor()) {
-                if (ventas.getCantVentas() <= 2) {
-                    porcentaje = 0.05;
-                } else {
-                    porcentaje = 0.1;
+                    precio = precioProducto(ventas.getCodProd());
+                    comision += ventas.getCantVentas() * precio * porcentaje;
                 }
-
-                precio = precioProducto(ventas.getCodProd());
-                comision += ventas.getCantVentas() * precio * porcentaje;
             }
+        }else{
+            comision = -1;
         }
         return comision;
     }
@@ -138,24 +143,22 @@ public class ServiciosImpl implements IServicios {
         return buscarPorCodigo(codProd).getPrecio();
     }
 
-    @Override
-    public boolean validarProducto(int codProd) {
+    private boolean validarCodigoProducto(int codProd) {
         boolean productoValido = false;
 
-        for (Productos productos : producto) {
+        for (Productos productos : productos) {
             if (codProd == productos.getCodigo()) {
                 productoValido = true;
                 break;
             }
         }
         if (!productoValido) {
-        JOptionPane.showMessageDialog(null, "El Producto " + codProd + " NO EXISTE");    
+            JOptionPane.showMessageDialog(null, "***El Producto " + codProd + " NO EXISTE***");
         }
         return productoValido;
     }
 
-    @Override
-    public boolean validarVendedor(int codVend) {
+    private boolean validarVendedor(int codVend) {
         boolean vendedorValido = false;
 
         for (Ventas vent : ventas) {
@@ -165,19 +168,18 @@ public class ServiciosImpl implements IServicios {
             }
         }
         if (!vendedorValido) {
-            JOptionPane.showMessageDialog(null, "El vendedor " + codVend + " NO EXISTE");
+            JOptionPane.showMessageDialog(null, "***El vendedor " + codVend + " NO EXISTE***");
         }
         return vendedorValido;
     }
 
-    @Override
-    public boolean validarCantVent(int cantVent) {
+    private boolean validarCantVent(int cantVent) {
         boolean cantVentaValida = false;
         if (cantVent >= 1) {
             cantVentaValida = true;
-        } 
+        }
         if (!cantVentaValida) {
-            JOptionPane.showMessageDialog(null, "La cantidad de Venta NO puede ser menos a 1");
+            JOptionPane.showMessageDialog(null, "***La cantidad de Venta NO puede ser menos a 1***");
         }
         return cantVentaValida;
     }

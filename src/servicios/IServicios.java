@@ -12,9 +12,4 @@ public interface IServicios {
         public List<Productos> buscarPorCategoria(String categ);
         public Ventas generarVenta(int numProd, int codVend, int cantVent);
         public double calcularComision(int codVendedor);
-        
-        public boolean validarProducto(int numProd);
-        public boolean validarVendedor(int codVend);
-        public boolean validarCantVent(int cantVent);        
-
 }
