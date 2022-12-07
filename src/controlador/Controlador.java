@@ -4,19 +4,16 @@ import entidades.Productos;
 import entidades.Ventas;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 import servicios.IServicios;
 import servicios.ServiciosImpl;
 import javax.swing.JOptionPane;
 
 public class Controlador {
 
-    private Scanner in;
     private IServicios iServicios;
     private JOptionPane jOptionPane;
 
     public Controlador() {
-        this.in = new Scanner(System.in);
         this.iServicios = new ServiciosImpl();
         this.jOptionPane = new JOptionPane();
     }
@@ -45,6 +42,7 @@ public class Controlador {
                     this.calcularComision();
                     break;
                 case 6:
+                    System.out.println("Cierre del Programa");
                     return;
                 default:
                     JOptionPane.showMessageDialog(jOptionPane, "Opcion ingresada INCORRECTA vuelva  intentar.");
@@ -107,68 +105,87 @@ public class Controlador {
 
     private void busquedaPorPrecioDeProducto() {
         double precioProducto = 0;
-        List<Productos> pr;
+        List<Productos> pr = new ArrayList<>();
+        String precioIngresado;
 
         do {
-            try {
-                precioProducto = Double.parseDouble(JOptionPane.showInputDialog("Ingrese el Precio maximo de busqueda."));
+            precioIngresado = JOptionPane.showInputDialog("Ingrese el Precio maximo de busqueda.");
+
+            if (precioIngresado == null) {
                 break;
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(jOptionPane, "Debe ingresar Precio Numerico");
-                System.out.println(e);
+            } else {
+                try {
+                    precioProducto = Double.parseDouble(precioIngresado);
+                    
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(jOptionPane, "Debe ingresar Precio Numerico");
+                    System.out.println(e);
+                    continue;
+                }
+
+                pr = iServicios.buscarPorPrecio(precioProducto);
+
+                if (pr.isEmpty()) {
+                    jOptionPane.showMessageDialog(jOptionPane, "***No se encontro ningun Producto con el Precio: " + precioProducto + " ***");
+                } else {
+                    for (Productos prod : pr) {
+                        System.out.println(prod);
+                    }
+                    JOptionPane.showMessageDialog(jOptionPane, pr.toString());
+                    elegirSiCompraONo();
+                    break;
+                }
             }
+
         } while (true);
-
-        pr = iServicios.buscarPorPrecio(precioProducto);
-
-        JOptionPane.showMessageDialog(jOptionPane, pr.toString());
-
-        if (pr.isEmpty()) {
-            jOptionPane.showMessageDialog(jOptionPane, "***No se encontro ningun Producto con el Precio: " + precioProducto + " ***");
-        } else {
-            elegirSiCompraONo();
-
-        }
     }
 
     private void BusquedaPorCategoria() {
-        List<Productos> pr;
+        List<Productos> pr = new ArrayList<>();
+        String categoria;
 
         do {
-            System.out.println("Escriba la CATEGORIA del producto.");
-            String cat = in.next();
-            pr = iServicios.buscarPorCategoria(cat);
-
-            if (pr.isEmpty()) {
-                JOptionPane.showMessageDialog(jOptionPane, "***No se encontro Productos con esa categoria***");
-            } else {
-                for (Productos prod : pr) {
-                    System.out.println(prod);
-                }
-                elegirSiCompraONo();
+            categoria = JOptionPane.showInputDialog("Ingrese la CATEGORIA del producto");
+            if (categoria == null) {
                 break;
+            } else {
+                if (!categoria.equals("")) {
+                    pr = iServicios.buscarPorCategoria(categoria);
+                }
+
+                if (pr.isEmpty()) {
+                    JOptionPane.showMessageDialog(jOptionPane, "***No se encontro Productos con esa categoria***");
+                } else {
+                    for (Productos prod : pr) {
+                        System.out.println(prod);
+                    }
+                    JOptionPane.showMessageDialog(jOptionPane, pr);
+                    elegirSiCompraONo();
+                    break;
+                }
             }
         } while (true);
     }
 
     private int seleccionarOpcionMenu() {
         int busqueda;
-        String aux;
+        String opcion = "";
         do {
-            aux = JOptionPane.showInputDialog(""
+            opcion = JOptionPane.showInputDialog(""
                     + "1. Buscar PRODUCTO por 'CODIGO'\n"
                     + "2. Buscar PRODUCTO por 'NOMBRE'\n"
                     + "3. Buscar PRODUCTO por 'PRECIO'\n"
                     + "4. Buscar PRODUCTO por 'CATEGORIA'\n"
                     + "5. Ver 'COMISIÓN' de un Vendedor\n"
                     + "6. SALIR o CANCELAR");
-            if (aux == null) {
+
+            if (opcion == null) {
                 busqueda = 6;
                 break;
             }
 
             try {
-                busqueda = Integer.parseInt(aux);
+                busqueda = Integer.parseInt(opcion);
                 break;
             } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(jOptionPane, "Debe ingresar un NUMERO entero\n");
@@ -198,7 +215,7 @@ public class Controlador {
             if (cantV == null) {
                 break;
             }
-            
+
             try {
                 codigoVendedor = Integer.parseInt(cVende);
                 codigoProducto = Integer.parseInt(cProd);
@@ -206,7 +223,7 @@ public class Controlador {
 
             } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(jOptionPane, "Todos los valores deben ser NUMERICOS");
-                System.out.println("Todos los valores deben ser NUMERICOS" + e);
+                System.out.println(e);
                 continue;
             }
 
@@ -224,13 +241,13 @@ public class Controlador {
         int codVendedor = 0;
         double comision;
         String aux;
-        
+
         do {
             aux = jOptionPane.showInputDialog("Ingrese su CODIGO de vendedor");
             if (aux == null) {
                 break;
             }
-            
+
             try {
                 codVendedor = Integer.parseInt(aux);
             } catch (NumberFormatException e) {
@@ -238,7 +255,7 @@ public class Controlador {
                 System.out.println(e);
                 continue;
             }
-            
+
             comision = iServicios.calcularComision(codVendedor);
             System.out.println(comision);
             if (comision >= 0) {
@@ -247,11 +264,10 @@ public class Controlador {
             }
         } while (true);
 
-        
     }
 
     private void elegirSiCompraONo() {
-        String siONo;
+        String siONo = "";
 
         do {
 
@@ -265,7 +281,7 @@ public class Controlador {
                 generarVenta();
                 break;
             } else if (siONo.equalsIgnoreCase("N")) {
-                JOptionPane.showMessageDialog(jOptionPane, "Regresaras al Menú de Busqueda de productos");
+                System.out.println("Regresaras al Menú de Busqueda de productos");
                 break;
             }
         } while (true);

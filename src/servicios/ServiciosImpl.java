@@ -30,14 +30,12 @@ public class ServiciosImpl implements IServicios {
 
         vendedor.add(new Vendedor(1, "Matias", 50000));
         vendedor.add(new Vendedor(2, "Maria", 50000));
-        vendedor.add(new Vendedor(3, "Daiana", 50000));
 
         ventas.add(new Ventas(1, 1, 2, LocalDate.now()));
         ventas.add(new Ventas(2, 1, 5, LocalDate.now()));
         ventas.add(new Ventas(4, 1, 1, LocalDate.now()));
         ventas.add(new Ventas(6, 2, 1, LocalDate.now()));
         ventas.add(new Ventas(1, 2, 2, LocalDate.now()));
-        ventas.add(new Ventas(8, 3, 3, LocalDate.now()));
     }
 
     @Override

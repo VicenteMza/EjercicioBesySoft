@@ -1,3 +1,4 @@
+
 package entidades;
 
 public class Productos {
@@ -35,7 +36,7 @@ public class Productos {
     
     @Override
     public String toString() {
-        return "Productos{" + "codigo=" + codigo + ", nombre=" + nombre + ", precio="
-                + "" + precio + ", categoria=" + categoria + "}\n";
+        return "\nProductos{" + "codigo=" + codigo + ", nombre=" + nombre + ", precio="
+                + "" + precio + ", categoria=" + categoria + "}";
     }
 }
