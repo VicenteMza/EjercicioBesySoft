@@ -11,6 +11,18 @@ public class Vendedor {
         this.sueldo = sueldo;
     }
 
+    public String getNombre() {
+        return nombre;
+    }
+
+    public int getCodigo() {
+        return codigo;
+    }
+
+    public double getSueldo() {
+        return sueldo;
+    }
+    
     @Override
     public String toString() {
         return "Vendedor{" + "codigo=" + codigo + ", nombre=" + nombre + ", sueldo=" + sueldo + '}';

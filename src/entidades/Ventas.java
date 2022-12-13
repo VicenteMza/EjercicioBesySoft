@@ -3,11 +3,12 @@ package entidades;
 import java.time.LocalDate;
 
 public class Ventas {
+
     private int codProd;
     private int codVendedor;
     private int cantVentas;
     private LocalDate localDate;
-    
+
     public Ventas() {
     }
 
@@ -15,6 +16,7 @@ public class Ventas {
         this.codProd = codProd;
         this.codVendedor = codVendedor;
         this.cantVentas = cantVentas;
+        this.localDate = localDate;
     }
 
     public int getCodProd() {
@@ -27,6 +29,10 @@ public class Ventas {
 
     public int getCantVentas() {
         return cantVentas;
+    }
+
+    public LocalDate getLocalDate() {
+        return localDate;
     }
 
     public void setCodProd(int codProd) {
@@ -47,6 +53,6 @@ public class Ventas {
 
     @Override
     public String toString() {
-        return "Ventas{" + "codProd=" + codProd + ", codVendedor=" + codVendedor + ", cantVentas=" + cantVentas + ", localDate=" + localDate + '}';
+        return "\nVentas{" + "codProd=" + codProd + ", codVendedor=" + codVendedor + ", cantVentas=" + cantVentas + ", localDate=" + localDate + '}';
     }
 }
